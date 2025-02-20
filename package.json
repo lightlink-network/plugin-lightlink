@@ -17,6 +17,15 @@
   "files": [
     "dist"
   ],
+  "agentConfig": {
+    "pluginType": "elizaos:plugin:1.0.0",
+    "pluginParameters": {
+      "EVM_PRIVATE_KEY": {
+        "type": "string",
+        "description": "An EVM private key for the agent to use"
+      }
+    }
+  },
   "dependencies": {
     "@bonfida/spl-name-service": "^3.0.9",
     "@cryptokass/llx": "0.0.3",
