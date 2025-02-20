@@ -1,0 +1,22 @@
+.turbo
+node_modules
+dist
+/out
+
+# Environment variables
+.env
+.env.production
+.env.local
+.env_main
+
+
+# IDE files
+.idea
+.vscode
+.zed
+.DS_Store
+.cursorrules
+
+# Pnpm and turbo
+.turbo
+.pnpm-store

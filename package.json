@@ -1,0 +1,36 @@
+{
+  "name": "@elizaos/plugin-lightlink",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@bonfida/spl-name-service": "^3.0.9",
+    "@cryptokass/llx": "0.0.3",
+    "@elizaos/core": "workspace:*",
+    "@solana/web3.js": "^1.98.0",
+    "node-cache": "^5.1.2",
+    "tsup": "8.3.5",
+    "typescript": "5.7.3"
+  },
+  "scripts": {
+    "dts": "tsc --emitDeclarationOnly --declaration --project tsconfig.json",
+    "build": "tsup --format esm && tsc --emitDeclarationOnly --declaration --project tsconfig.json",
+    "dev": "tsup --format esm --dts --watch",
+    "test": "vitest run",
+    "lint": "eslint --fix  --cache ."
+  }
+}
