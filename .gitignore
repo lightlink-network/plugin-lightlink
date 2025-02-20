@@ -1,7 +1,5 @@
 .turbo
 node_modules
-dist
-/out
 
 # Environment variables
 .env
