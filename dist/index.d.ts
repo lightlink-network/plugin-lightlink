@@ -251,6 +251,7 @@ interface BalanceParams {
 interface BalanceResult {
     balance: string;
     formattedBalance: string;
+    symbol: string;
 }
 interface EvmPluginConfig {
     rpcUrl?: {

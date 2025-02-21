@@ -848,36 +848,43 @@ import {
   generateObjectDeprecated as generateObjectDeprecated4,
   ModelClass as ModelClass4
 } from "@elizaos/core";
-import { erc20Abi, formatEther as formatEther2, formatUnits as formatUnits2 } from "viem";
+import { formatEther as formatEther2, formatUnits as formatUnits2 } from "viem";
+import {
+  fetchBalance,
+  fetchTokenDecimals as fetchTokenDecimals2,
+  fetchTokenSymbol
+} from "@cryptokass/llx";
 var BalanceAction = class {
   constructor(walletProvider) {
     this.walletProvider = walletProvider;
   }
   async balance(params) {
+    console.log("Balance action called with params:", params);
     const publicClient = this.walletProvider.getPublicClient(params.chain);
-    if (params.token === null) {
+    if (isNull(params.token) || params.token.toLowerCase() == "eth") {
       const balance2 = await publicClient.getBalance({
         address: params.address
       });
       return {
         balance: balance2.toString(),
-        formattedBalance: formatEther2(balance2)
+        formattedBalance: formatEther2(balance2),
+        symbol: "ETH"
       };
     }
-    const balance = await publicClient.readContract({
-      address: params.token,
-      abi: erc20Abi,
-      functionName: "balanceOf",
-      args: [params.address]
-    });
-    const decimals = await publicClient.readContract({
-      address: params.token,
-      abi: erc20Abi,
-      functionName: "decimals"
-    });
+    const balance = await fetchBalance(
+      publicClient.chain.id,
+      params.token,
+      params.address
+    );
+    const decimals = await fetchTokenDecimals2(
+      publicClient.chain.id,
+      params.token
+    );
+    const symbol = await fetchTokenSymbol(publicClient.chain.id, params.token);
     return {
       balance: balance.toString(),
-      formattedBalance: formatUnits2(balance, decimals)
+      formattedBalance: formatUnits2(balance, decimals),
+      symbol
     };
   }
 };
@@ -906,16 +913,17 @@ var balanceAction = {
       const balanceResp = await action.balance(balanceOptions);
       if (callback) {
         callback({
-          text: `Successfully got the balance for ${balanceOptions.address}
-Token: ${balanceOptions.token ?? "ETH"}
-Chain: ${balanceOptions.chain}
-Balance: ${balanceResp.formattedBalance} (${balanceResp.balance} Units)`,
+          text: `Successfully got the balance for \`${balanceOptions.address}\`
+ - Chain: ${balanceOptions.chain}
+ - Balance: ${balanceResp.formattedBalance} ${balanceResp.symbol}
+         (${balanceResp.balance} Units)`,
           content: {
             success: true,
             chain: content.chain,
-            token: balanceOptions.token ?? "ETH",
+            token: isNull(balanceOptions.token) ? "ETH" : balanceOptions.token,
             balance: balanceResp.balance,
-            formattedBalance: balanceResp.formattedBalance
+            formattedBalance: balanceResp.formattedBalance,
+            symbol: balanceResp.symbol
           }
         });
       }
@@ -946,6 +954,9 @@ Balance: ${balanceResp.formattedBalance} (${balanceResp.balance} Units)`,
   ],
   similes: ["GET_BALANCE", "GET_TOKEN_BALANCE"]
 };
+function isNull(value) {
+  return value == null || value == "null" || value == "";
+}
 
 // src/index.ts
 var lightlinkPlugin = {
