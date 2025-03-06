@@ -12,6 +12,7 @@ import {
   fetchBalance,
   fetchTokenDecimals,
   fetchTokenSymbol,
+  resolveEnsDomain,
 } from "@cryptokass/llx";
 
 export class BalanceAction {
@@ -21,14 +22,18 @@ export class BalanceAction {
     console.log("Balance action called with params:", params);
     const publicClient = this.walletProvider.getPublicClient(params.chain);
 
+    // parse the address
+    let address = params.address;
+    if (!address.startsWith("0x")) {
+      address = await resolveEnsDomain(address);
+    }
+
     // if token is null, get the balance of the address on the chain
     if (
       isNull(params.token) ||
       (params.token as string).toLowerCase() == "eth"
     ) {
-      const balance = await publicClient.getBalance({
-        address: params.address,
-      });
+      const balance = await publicClient.getBalance({ address });
       return {
         balance: balance.toString(),
         formattedBalance: formatEther(balance),
@@ -39,7 +44,7 @@ export class BalanceAction {
     const balance = await fetchBalance(
       publicClient.chain.id,
       params.token,
-      params.address
+      address
     );
 
     const decimals = await fetchTokenDecimals(

@@ -852,7 +852,8 @@ import { formatEther as formatEther2, formatUnits as formatUnits2 } from "viem";
 import {
   fetchBalance,
   fetchTokenDecimals as fetchTokenDecimals2,
-  fetchTokenSymbol
+  fetchTokenSymbol,
+  resolveEnsDomain as resolveEnsDomain2
 } from "@cryptokass/llx";
 var BalanceAction = class {
   constructor(walletProvider) {
@@ -861,10 +862,12 @@ var BalanceAction = class {
   async balance(params) {
     console.log("Balance action called with params:", params);
     const publicClient = this.walletProvider.getPublicClient(params.chain);
+    let address = params.address;
+    if (!address.startsWith("0x")) {
+      address = await resolveEnsDomain2(address);
+    }
     if (isNull(params.token) || params.token.toLowerCase() == "eth") {
-      const balance2 = await publicClient.getBalance({
-        address: params.address
-      });
+      const balance2 = await publicClient.getBalance({ address });
       return {
         balance: balance2.toString(),
         formattedBalance: formatEther2(balance2),
@@ -874,7 +877,7 @@ var BalanceAction = class {
     const balance = await fetchBalance(
       publicClient.chain.id,
       params.token,
-      params.address
+      address
     );
     const decimals = await fetchTokenDecimals2(
       publicClient.chain.id,
